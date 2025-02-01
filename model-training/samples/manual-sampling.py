@@ -17,7 +17,7 @@ wordlist_file       = os.path.join(collection_folder, "wordlist.txt")
 SAMPLE_TIME_SECONDS = 2
 SAMPLE_FRAMES       = 30
 
-camera = cv.VideoCapture(1)
+camera = cv.VideoCapture(0)
 
 
 mp_h = mp.solutions.holistic
