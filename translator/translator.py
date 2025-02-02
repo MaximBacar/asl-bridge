@@ -39,7 +39,7 @@ def load_words():
 
 sentence        = []
 camera          = cv.VideoCapture(0)
-model           = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/new4.keras')
+model           = load_model('model-training/new3.keras')
 words           = load_words()
 
 status          = 0
