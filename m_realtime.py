@@ -5,6 +5,7 @@ import  os
 import  time
 from    matplotlib  import  pyplot  as plt
 from    tensorflow.keras.models import load_model
+from text_to_speech import text_to_audio
 
 
 # Models to detect limbs and draw on screen
@@ -59,62 +60,48 @@ def transform_data( results ):
     return np.concatenate([pose, left_h, right_h])
 
 
-model = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/new.keras')
+model = load_model('/Users/asmaeloulidi/Desktop/Hackathon 2025/asl-bridge/model-training/new.keras')
 
 
 
 sample = []
 sentence = []
 t = 0.7
+last_spoken_time = time.time()  # Track when the last audio was played
+speak_interval = 2  # Speak the same word every 3 seconds
 
 
-words = ['none', 'person', 'hello', 'school', 'i love you']
+# words = ['none', 'person', 'hello', 'school', 'i love you']
 words = ['none', 'person', 'hello']
 
 # 0: iPhone, 1: webcam
 capture = cv.VideoCapture(0)
 
-# Read camera
-with mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_confidence=0.7) as holistic:
+with mp_h.Holistic(min_detection_confidence=0.7, min_tracking_confidence=0.7) as holistic:
     while capture.isOpened():
-
         _, frame = capture.read()
-
-        image, results = mediapipe_detection( frame, holistic )
-
-        draw_skeleton( image, results )
-
-        data = transform_data( results )
-
-        
-
-        # sample.insert(0,data)
-        # sample = sample[:30]
+        image, results = mediapipe_detection(frame, holistic)
+        draw_skeleton(image, results)
+        data = transform_data(results)
         sample.append(data)
         sample = sample[-30:]
         
-        
         if len(sample) == 30:
             result = model.predict(np.expand_dims(sample, axis=0))[0]
-
-            #print(words[np.argmax(result)])
-            print(result)
-
-            if result[np.argmax(result)] > t:
-                if len(sentence) > 0:
-                    #if words[np.argmax(result)] != sentence[-1]:
-                    sentence.append(words[np.argmax(result)])
-                else:
-                    sentence.append(words[np.argmax(result)])
-            if len(sentence) > 5:
-                    sentence = sentence[-5:]
-
+            predicted_word = words[np.argmax(result)]
+            print(predicted_word)
+            
+            current_time = time.time()
+            if current_time - last_spoken_time > speak_interval:
+                text_to_audio(predicted_word)
+                last_spoken_time = current_time
 
         cv.rectangle(image, (0,0), (640,640), (245,117, 16), -1)
-        cv.putText(image, ' '.join(sentence), (3,30), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+        # cv.putText(image, ' '.join(sentence), (3,30), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
 
         cv.imshow("ASL", image)
         if cv.waitKey(10) & 0xFF == ord('q'):
             break
+
 capture.release()
 cv.destroyAllWindows()
