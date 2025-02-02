@@ -37,7 +37,7 @@ The Elevenlabs API was used to generate a voice from the text decoded by chatGPT
 - Ihana Fahmy
 - Maxim Bacar
 
-## Google Slides Presentation
-[![Google Slides](![image](https://github.com/user-attachments/assets/7d20bc0e-9bd7-4540-b887-4e2b6cdddabc)
-)](https://docs.google.com/presentation/d/e/2PACX-1vSj8GB4djKmnPdvt9DNn5HWLDc4_I3yWx-Mwfdg-LWTbwnkdrAiwF0BCiAQ1XwliMOxO4khavcStFFP/embed?start=false&loop=true&delayms=5000)
+## Google Slides Presentation 
+### Click on the image to see the presentation !
+[![Google Slides](https://github.com/MaximBacar/asl-bridge/blob/main/image/cover%20presentation.jpg?raw=true)](https://docs.google.com/presentation/d/e/2PACX-1vSj8GB4djKmnPdvt9DNn5HWLDc4_I3yWx-Mwfdg-LWTbwnkdrAiwF0BCiAQ1XwliMOxO4khavcStFFP/embed?start=false&loop=true&delayms=5000)
 
