@@ -1,17 +1,19 @@
 # ASL-Bridge
-Make the bridge between sign language and speaking
+Make the bridge between sign language and speaking.
 
 ## Description
 
 ASL-Bridge is a prototype American Sign Language translator.
-The project allows to record sentences in ASL and transform it into spoken english
+The project allows to record sentences in ASL and transform them into spoken english.
 
 ASL-Bridge can understand movement, compared to many other sign language translators, allowing to potential be able to translate the entire dictionary.
 
 
 ## Machine Learning Usage
 
-To detech words, a machine learning algorithm was trained on data we collected. The data consists of key points representing the hands, arms, body and head. A machine learning model was used to extract those limbs keypoints from a video stream.
+To detect words, a machine learning algorithm was trained on data we collected. The data consists of key points representing the hands, arms, body and head. A machine learning model was used to extract those limbs keypoints from a video stream.
+
+The machine learning algorithm used is LSTM
 
 ## Data collection
 
@@ -29,4 +31,8 @@ It allows to transform sentences like:
 
 The Elevenlabs API was used to generate a voice from the text decoded by chatGPT, giving a potential voice to mute people having to relay on sign language to communicate
 
+## Members
 
+- Asmae Loulidi
+- Ihana Fahmy
+- Maxim Bacar
