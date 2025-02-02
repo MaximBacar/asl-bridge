@@ -95,7 +95,7 @@ def start_collection( word = '', word_nbr = -1, sample_nbr = 0):
 
     
 
-    with mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_confidence=0.7) as holistic:
+    with mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_confidence=0.5) as holistic:
         for sample in range(0+sample_nbr, SAMPLE_SIZE):
             good = False
             
