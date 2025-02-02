@@ -56,10 +56,10 @@ def transform_data( results ):
     else:
         head = np.zeros(1404)
 
-    return np.concatenate([pose, head, left_h, right_h])
+    return np.concatenate([pose, left_h, right_h])
 
 
-model = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/hello-my.keras')
+model = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/new.keras')
 
 
 
@@ -68,7 +68,7 @@ sentence = []
 t = 0.7
 
 
-words = ['hello', 'my']
+words = ['none', 'person', 'hello']
 
 # 0: iPhone, 1: webcam
 capture = cv.VideoCapture(0)
@@ -84,6 +84,9 @@ with mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_confidence=0.7) a
         draw_skeleton( image, results )
 
         data = transform_data( results )
+
+        
+
         # sample.insert(0,data)
         # sample = sample[:30]
         sample.append(data)
@@ -92,6 +95,8 @@ with mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_confidence=0.7) a
         
         if len(sample) == 30:
             result = model.predict(np.expand_dims(sample, axis=0))[0]
+
+            print(words[np.argmax(result)])
 
             if result[np.argmax(result)] > t:
                 if len(sentence) > 0:
