@@ -1,5 +1,5 @@
 # ASL-Bridge
-Bridge the gap between sign language and speaking.
+Bridge the gap between sign language and spoken communication.
 
 ## Description
 
