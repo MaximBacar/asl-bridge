@@ -139,6 +139,9 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_con
             text = conversation.asl_to_text(sentence_str)
             conversation.text_to_audio(text)
             status = 0 
+            word = ''
+            capture_count = 0
+            sentence.clear()
 
         cv.imshow('ASL-Bridge', frame)
 
