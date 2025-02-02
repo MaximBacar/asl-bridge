@@ -68,6 +68,7 @@ sentence = []
 t = 0.7
 
 
+words = ['none', 'person', 'hello', 'school', 'i love you']
 words = ['none', 'person', 'hello']
 
 # 0: iPhone, 1: webcam
@@ -96,12 +97,13 @@ with mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_confidence=0.7) a
         if len(sample) == 30:
             result = model.predict(np.expand_dims(sample, axis=0))[0]
 
-            print(words[np.argmax(result)])
+            #print(words[np.argmax(result)])
+            print(result)
 
             if result[np.argmax(result)] > t:
                 if len(sentence) > 0:
-                    if words[np.argmax(result)] != sentence[-1]:
-                        sentence.append(words[np.argmax(result)])
+                    #if words[np.argmax(result)] != sentence[-1]:
+                    sentence.append(words[np.argmax(result)])
                 else:
                     sentence.append(words[np.argmax(result)])
             if len(sentence) > 5:

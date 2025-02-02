@@ -1,11 +1,11 @@
 import os
 import sys
 
-path = "/Volumes/SSD/collection/65"
+path = "/Volumes/SSD/collection/68"
 files = os.listdir(path)
 
-start = 31
-target_folder = 63
+start = 47
+target_folder = 67
 
 for index, file in enumerate(files):
     old_path = os.path.join(path, file)
