@@ -39,7 +39,7 @@ def load_words():
 
 sentence        = []
 camera          = cv.VideoCapture(0)
-model           = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/new3.keras')
+model           = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/new4.keras')
 words           = load_words()
 
 status          = 0
@@ -47,6 +47,7 @@ timer_start     = -1
 capture_count   = 0
 sequence        = []
 word            = ""
+draw_squeleton  = False
 
 conversation             = Conversation()
 
@@ -66,17 +67,18 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_con
     while camera.isOpened():
 
         _, frame = camera.read()
+        image, results  = body_tracking.mediapipe_detection( frame, holistic )
 
         # IDLE
         if status == 0:
-            cv.putText(frame, "PRESS SPACE TO START", (750,500), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, "PRESS SPACE TO START", (750,500), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
 
         # Countdown
         if status == 1:
             elapsed_time = time.perf_counter() - timer_start
 
             countdown = int(CAPTURE_TIMER - elapsed_time)
-            cv.putText(frame, f"{countdown}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"{countdown}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
 
             if elapsed_time > CAPTURE_TIMER:
                 status = 2
@@ -84,7 +86,6 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_con
         # Recording
         if status == 2:
 
-            image, results  = body_tracking.mediapipe_detection( frame, holistic )
             data            = body_tracking.transform_data( results )
 
             sequence.append(data)
@@ -98,10 +99,10 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_con
                 status = 3
         
         if status == 3:
-            cv.putText(frame, f"{word}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
-            cv.putText(frame, f"PRESS SPACE TO RECORD NEXT WORD", (750,550), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
-            cv.putText(frame, f"PRESS ENTER TO STOP", (750,600), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
-            cv.putText(frame, f"PRESS BACKSPACE TO RESTART", (750,650), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"{word}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"PRESS SPACE TO RECORD NEXT WORD", (750,550), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"PRESS ENTER TO STOP", (750,600), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"PRESS BACKSPACE TO RESTART", (750,650), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
         # Press space
         
         key = cv.waitKey(10) & 0xFF
@@ -131,6 +132,9 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_con
                 # back to countdown
                 status = 1
 
+        # show/hide mask
+        if key == ord('q'):
+            draw_squeleton = not draw_squeleton
 
         # Press enter
         if key == 13:
@@ -143,7 +147,10 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_con
             capture_count = 0
             sentence.clear()
 
-        cv.imshow('ASL-Bridge', frame)
+        if draw_squeleton:
+            body_tracking.draw_skeleton(image, results)
+        
+        cv.imshow('ASL-Bridge', image)
 
 camera.release()
 cv.destroyAllWindows()
