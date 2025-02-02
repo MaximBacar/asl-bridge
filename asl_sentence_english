@@ -1,0 +1,23 @@
+import openai
+import os
+openai.api_key = os.getenv("OPENAI_API_KEY") 
+
+def translate_asl(asl_sentence):
+    prompt = f"Translate this ASL sentence into grammatically correct English: {asl_sentence}"
+    
+    response = openai.ChatCompletion.create(  # ✅ Works in OpenAI v0.28
+        model="gpt-3.5-turbo",  # You can use "gpt-4" if available
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=100,
+        temperature=0.7
+    )
+    
+    translated_text = response["choices"][0]["message"]["content"].strip()  
+    return translated_text
+
+# Test the function
+a = translate_asl("I STUDENT COMPUTER ENGINEERING")
+print(a)
