@@ -1,7 +1,7 @@
-import os
-import time
-import cv2 as cv
-import numpy as np
+import  os
+import  time
+import  cv2 as cv
+import  numpy as np
 import  mediapipe   as mp
 from    matplotlib  import  pyplot  as plt
 
@@ -10,12 +10,10 @@ collection_location = "/Volumes/SSD"
 
 
 collection_folder   = os.path.join( collection_location, "collection" )
-wordlist_file       = os.path.join(collection_folder, "wordlist.txt")
+wordlist_file       = os.path.join( collection_folder, "wordlist.txt")
 
-
-
-SAMPLE_TIME_SECONDS = 2
 SAMPLE_FRAMES       = 30
+SAMPLE_SIZE         = 60
 
 camera = cv.VideoCapture(0)
 
@@ -62,11 +60,6 @@ def transform_data( results ):
     else:
         right_h = np.zeros(63)
     
-    if results.face_landmarks:
-        head = np.array([[result.x, result.y, result.z] for result in results.face_landmarks.landmark]).flatten()
-    else:
-        head = np.zeros(1404)
-
     # dont use head
     return np.concatenate([pose, left_h, right_h])
 
@@ -80,24 +73,30 @@ def create_collection_folder():
             file.write('')
 
 
-def start_collection( word ):
-    dirs = [d for d in os.listdir(collection_folder) if os.path.isdir(os.path.join(collection_folder, d))]
+def start_collection( word = '', word_nbr = -1, sample_nbr = 0):
 
-    dir_name = 0
+    word_folder = ""
 
-    if dirs:
-        max_folder = max(list(map(int, dirs)))
-        dir_name = int(max_folder) + 1
+    if word_nbr == -1:
+        dirs = [d for d in os.listdir(collection_folder) if os.path.isdir(os.path.join(collection_folder, d))]
+        dir_name = 0
+        if dirs:
+            max_folder = max(list(map(int, dirs)))
+            dir_name = int(max_folder) + 1
+        word_nbr = dir_name
+        word_folder = os.path.join(collection_folder, str(word_nbr))
 
-    os.mkdir(os.path.join(collection_folder, str(dir_name)))
+        os.mkdir(word_folder)
 
-    with open(wordlist_file, 'a') as file:
-        file.write(f"{word}, {dir_name}\n")
+        with open(wordlist_file, 'a') as file:
+            file.write(f"{word}, {dir_name}\n")
+    else:
+        word_folder = os.path.join(collection_folder, str(word_nbr))
 
-    sample_size = 60
+    
 
-    with mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_confidence=0.7) as holistic:
-        for sample in range(sample_size):
+    with mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_confidence=0.5) as holistic:
+        for sample in range(0+sample_nbr, SAMPLE_SIZE):
             good = False
             
             while not good:
@@ -114,7 +113,7 @@ def start_collection( word ):
 
                 for frame in range( SAMPLE_FRAMES ):
                         
-                    frame_path = os.path.join(collection_folder, str(dir_name), f"{dir_name}_{sample}_{frame}")
+                    frame_path = os.path.join(word_folder, f"{word_nbr}_{sample}_{frame}")
                         # take picture
                     _, frame = camera.read()
                     image, results = mediapipe_detection( frame, holistic )
@@ -143,5 +142,19 @@ def start_collection( word ):
 create_collection_folder()
 
 
-word = input('Enter word to manually collect : ')
-start_collection(word)
+
+
+print("1 - NEW SAMPLING")
+print("2 - RESUME SAMPLING")
+
+menu = input("> ")
+
+if menu == '1':
+    word = input('Enter word to manually collect : ')
+    start_collection(word=word)
+if menu == '2':
+    word_number = int(input("WORD NUMBER : "))
+    s_n = int(input("SEQU. NBR : "))
+    start_collection(word_nbr=word_number, sample_nbr=s_n)
+
+

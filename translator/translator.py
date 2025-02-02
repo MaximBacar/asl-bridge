@@ -23,7 +23,7 @@ import time
 
 from    tensorflow.keras.models import load_model
 
-from text_to_speech import text_to_audio
+from conversation_utils import Conversation
 
 CAPTURE_TIMER       = 5
 FRAME_PER_SEQUENCE  = 30
@@ -38,8 +38,8 @@ def load_words():
     return words
 
 sentence        = []
-camera          = cv.VideoCapture(1)
-model           = load_model('/Users/asmaeloulidi/Desktop/Hackathon 2025/asl-bridge/model-training/new2.keras')
+camera          = cv.VideoCapture(0)
+model           = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/new4.keras')
 words           = load_words()
 
 status          = 0
@@ -47,6 +47,9 @@ timer_start     = -1
 capture_count   = 0
 sequence        = []
 word            = ""
+draw_squeleton  = False
+
+conversation             = Conversation()
 
 
 def asl_to_written( asl : str ) -> str:
@@ -60,21 +63,22 @@ def read_text( text : str ) -> str:
 
 # 0 : idle, 1 : countdown, 2: recording
 
-with body_tracking.mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_confidence=0.7) as holistic:
+with body_tracking.mp_h.Holistic(min_detection_confidence=0.5,  min_tracking_confidence=0.5) as holistic:
     while camera.isOpened():
 
         _, frame = camera.read()
+        image, results  = body_tracking.mediapipe_detection( frame, holistic )
 
         # IDLE
         if status == 0:
-            cv.putText(frame, "PRESS SPACE TO START", (750,500), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, "PRESS SPACE TO START", (750,500), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
 
         # Countdown
         if status == 1:
             elapsed_time = time.perf_counter() - timer_start
 
             countdown = int(CAPTURE_TIMER - elapsed_time)
-            cv.putText(frame, f"{countdown}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"{countdown}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
 
             if elapsed_time > CAPTURE_TIMER:
                 status = 2
@@ -82,7 +86,6 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_con
         # Recording
         if status == 2:
 
-            image, results  = body_tracking.mediapipe_detection( frame, holistic )
             data            = body_tracking.transform_data( results )
 
             sequence.append(data)
@@ -91,12 +94,15 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_con
 
             if capture_count > FRAME_PER_SEQUENCE:
                 result = model.predict(np.expand_dims(sequence, axis=0))[0]
+                print(result)
                 word = words[np.argmax(result)]
                 status = 3
         
         if status == 3:
-            cv.putText(frame, f"{word}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
-            cv.putText(frame, f"SPACE FOR NEXT WORD\nENTER TO STOP\nBACKSPACE TO RESTART", (750,550), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"{word}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"PRESS SPACE TO RECORD NEXT WORD", (750,550), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"PRESS ENTER TO STOP", (750,600), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
+            cv.putText(image, f"PRESS BACKSPACE TO RESTART", (750,650), cv.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv.LINE_AA)
         # Press space
         
         key = cv.waitKey(10) & 0xFF
@@ -126,40 +132,25 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_con
                 # back to countdown
                 status = 1
 
+        # show/hide mask
+        if key == ord('q'):
+            draw_squeleton = not draw_squeleton
 
         # Press enter
         if key == 13:
             sentence.append(word)
             sentence_str = " ".join(sentence)
-            text = asl_to_written( sentence_str )
-            text_to_audio(sentence_str)
+            text = conversation.asl_to_text(sentence_str)
+            conversation.text_to_audio(text)
             status = 0 
+            word = ''
+            capture_count = 0
+            sentence.clear()
 
-        cv.imshow('ASL-Bridge', frame)
+        if draw_squeleton:
+            body_tracking.draw_skeleton(image, results)
+        
+        cv.imshow('ASL-Bridge', image)
 
 camera.release()
 cv.destroyAllWindows()
-    # press space to take a pic
-
-    # count down on screen
-
-    # call record_word()
-
-    # return prediction
-
-    # backspace to restart
-
-    # space to go to next pic
-    # -> Add word to sentence array
-    # -> loops
-    
-    # enter to stop
-    # -> Add word to sentence array
-    # -> Exit loop
-    # -> call asl_to_written()
-    # -> call read_text()
-
-    
-
-    
-load_words()
