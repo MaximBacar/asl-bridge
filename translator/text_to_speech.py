@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os
-import  threading
+
 from elevenlabs import stream
 from elevenlabs.client import ElevenLabs
 
@@ -11,11 +11,9 @@ client = ElevenLabs(
 )
 
 def text_to_audio(text):
-    # Run text-to-speech in a separate thread
-    def speak():
         audio_stream = client.text_to_speech.convert_as_stream(
             text=text,
             voice_id="JBFqnCBsd6RMkjVDRZzb"
         )
         stream(audio_stream)
-    threading.Thread(target=speak, daemon=True).start()
+

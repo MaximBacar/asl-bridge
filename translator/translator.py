@@ -23,6 +23,8 @@ import time
 
 from    tensorflow.keras.models import load_model
 
+from text_to_speech import text_to_audio
+
 CAPTURE_TIMER       = 5
 FRAME_PER_SEQUENCE  = 30
 WORDS_PATH          = "translator/words.txt"
@@ -37,7 +39,7 @@ def load_words():
 
 sentence        = []
 camera          = cv.VideoCapture(1)
-model           = load_model('/Users/maximbacar/Developer/asl-bridge/asl-bridge/model-training/new2.keras')
+model           = load_model('/Users/asmaeloulidi/Desktop/Hackathon 2025/asl-bridge/model-training/new2.keras')
 words           = load_words()
 
 status          = 0
@@ -96,6 +98,7 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_con
             cv.putText(frame, f"{word}", (750,500), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
             cv.putText(frame, f"SPACE FOR NEXT WORD\nENTER TO STOP\nBACKSPACE TO RESTART", (750,550), cv.FONT_HERSHEY_SIMPLEX, 3, (255,255,255), 2, cv.LINE_AA)
         # Press space
+        
         key = cv.waitKey(10) & 0xFF
         if key == 32:
             if status == 0:
@@ -129,7 +132,7 @@ with body_tracking.mp_h.Holistic(min_detection_confidence=0.7,  min_tracking_con
             sentence.append(word)
             sentence_str = " ".join(sentence)
             text = asl_to_written( sentence_str )
-            read_text(text)
+            text_to_audio(sentence_str)
             status = 0 
 
         cv.imshow('ASL-Bridge', frame)
