@@ -38,7 +38,7 @@ def mediapipe_detection( image, model ):
 def draw_skeleton( image, results ):
     '''Draw the detected limbs on screen
     '''
-    mp_d.draw_landmarks( image, results.face_landmarks,         mp_h.FACEMESH_CONTOURS)
+    #mp_d.draw_landmarks( image, results.face_landmarks,         mp_h.FACEMESH_CONTOURS)
     mp_d.draw_landmarks( image, results.left_hand_landmarks,    mp_h.HAND_CONNECTIONS)
     mp_d.draw_landmarks( image, results.right_hand_landmarks,   mp_h.HAND_CONNECTIONS)
     mp_d.draw_landmarks( image, results.pose_landmarks,         mp_h.POSE_CONNECTIONS)
@@ -50,7 +50,7 @@ def transform_data( results ):
     if results.pose_landmarks:
         pose = np.array([[result.x, result.y, result.z] for result in results.pose_landmarks.landmark]).flatten()
     else:
-        pose = np.zeros(132)
+        pose = np.zeros(99)
 
     if results.left_hand_landmarks:
         left_h = np.array([[result.x, result.y, result.z] for result in results.left_hand_landmarks.landmark]).flatten() 
@@ -67,7 +67,8 @@ def transform_data( results ):
     else:
         head = np.zeros(1404)
 
-    return np.concatenate([pose, head, left_h, right_h])
+    # dont use head
+    return np.concatenate([pose, left_h, right_h])
 
 
 def create_collection_folder():
